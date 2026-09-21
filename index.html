@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>patrol</title>
+<meta name="description" content="Turn-based stealth. The cameras sweep on a clock, so plan around them.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="top">
+  <div class="brand">~/ dhellskiee : <span>./patrol</span></div>
+  <div class="brand dim" id="v-lives">life life life</div>
+</header>
+
+<main class="app">
+  <div class="hud">
+    <div class="stat"><span class="k">floor</span><span class="v" id="v-level">1</span></div>
+    <div class="stat"><span class="k">moves</span><span class="v" id="v-moves">0 <i>/ 0</i></span></div>
+    <div class="stat"><span class="k">files</span><span class="v" id="v-data">0/1</span></div>
+    <div class="stat"><span class="k">score</span><span class="v" id="v-score">0</span></div>
+  </div>
+
+  <div class="gridwrap">
+    <div class="grid" id="grid" role="grid" aria-label="floor plan"></div>
+    <div class="overlay" id="overlay">
+      <div class="card" id="card">
+        <h1>patrol</h1>
+        <p>Grab every file and reach the stairs. The cameras turn a quarter every time you move.</p>
+        <ul class="rules">
+          <li>Solid red is what the cameras see <b>now</b>. Faded red is where they sweep <b>next</b>.</li>
+          <li>Step into either one and you are seen. Waiting counts as a move too.</li>
+          <li>Every floor has a route. Three lives.</li>
+        </ul>
+        <button class="btn" id="go" type="button">Start</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="pad">
+    <button class="key" data-d="0" type="button" aria-label="up">up</button>
+    <button class="key" data-d="3" type="button" aria-label="left">left</button>
+    <button class="key" data-d="w" type="button" aria-label="wait">wait</button>
+    <button class="key" data-d="1" type="button" aria-label="right">right</button>
+    <button class="key" data-d="2" type="button" aria-label="down">down</button>
+  </div>
+  <p class="hint">arrow keys or wasd to move · space to wait · you can also tap a neighbouring cell</p>
+</main>
+<footer class="foot">dhellmar mahilum — malupet na hacker</footer>
+<script src="script.js"></script>
+</body>
+</html>
