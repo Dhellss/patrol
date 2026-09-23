@@ -1,55 +1,146 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>patrol</title>
-<meta name="description" content="Turn-based stealth. The cameras sweep on a clock, so plan around them.">
+<title>Dhellmar Mahilum</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<header class="top">
-  <div class="brand">~/ dhellskiee : <span>./patrol</span></div>
-  <div class="brand dim" id="v-lives">life life life</div>
+<header>
+  <div class="wrap nav">
+    <a class="logo" href="#home">dhellskiee<span>.dev</span></a>
+    <nav class="tabs" aria-label="Main">
+      <a href="#home" data-link="home"><span class="n">~/</span>home</a>
+      <a href="#projects" data-link="projects"><span class="n">~/</span>projects</a>
+      <a href="#contact" data-link="contact"><span class="n">~/</span>contact</a>
+    </nav>
+  </div>
 </header>
 
-<main class="app">
-  <div class="hud">
-    <div class="stat"><span class="k">floor</span><span class="v" id="v-level">1</span></div>
-    <div class="stat"><span class="k">moves</span><span class="v" id="v-moves">0 <i>/ 0</i></span></div>
-    <div class="stat"><span class="k">files</span><span class="v" id="v-data">0/1</span></div>
-    <div class="stat"><span class="k">score</span><span class="v" id="v-score">0</span></div>
-  </div>
-
-  <div class="gridwrap">
-    <div class="grid" id="grid" role="grid" aria-label="floor plan"></div>
-    <div class="overlay" id="overlay">
-      <div class="card" id="card">
-        <h1>patrol</h1>
-        <p>Grab every file and reach the stairs. The cameras turn a quarter every time you move.</p>
-        <ul class="rules">
-          <li>Solid red is what the cameras see <b>now</b>. Faded red is where they sweep <b>next</b>.</li>
-          <li>Step into either one and you are seen. Waiting counts as a move too.</li>
-          <li>Every floor has a route. Three lives.</li>
-        </ul>
-        <button class="btn" id="go" type="button">Start</button>
+<main class="wrap">
+  <!-- HOME -->
+  <section data-page="home">
+    <div class="hero">
+      <div>
+        <div class="eyebrow">Computer Science Student</div>
+        <h1>Dhellmar<span class="cursor" aria-hidden="true"></span></h1>
+        <p class="lede">Hi, I'm <strong>Dhellmar Feliciano Mahilum</strong>. I write code, build games and websites, and learn how systems break so I can make them safer.</p>
+        <div class="cta">
+          <a class="btn primary" href="#projects">See my projects →</a>
+          <a class="btn" href="#contact">Get in touch</a>
+        </div>
+      </div>
+      <div class="term" aria-label="Terminal-style profile summary">
+        <div class="term-bar"><i></i><i></i><i></i></div>
+        <div class="term-body"><pre style="margin:0;font:inherit"><span class="p">dhellmar@cs</span><span class="d">:~$</span> whoami
+Dhellmar Feliciano Mahilum
+<span class="p">dhellmar@cs</span><span class="d">:~$</span> cat role.txt
+<span class="s">"Computer Science Student"</span>
+<span class="p">dhellmar@cs</span><span class="d">:~$</span> ls interests/
+<span class="k">coding/</span>        <span class="k">programming/</span>
+<span class="k">ethical-hacking/</span>  <span class="k">cyber-security/</span>
+<span class="k">game-dev/</span>      <span class="k">web-dev/</span>
+<span class="k">software-dev/</span>  <span class="k">system-dev/</span>
+<span class="k">ui-ux/</span>
+<span class="p">dhellmar@cs</span><span class="d">:~$</span> <span class="d">_</span></pre></div>
       </div>
     </div>
-  </div>
 
-  <div class="pad">
-    <button class="key" data-d="0" type="button" aria-label="up">up</button>
-    <button class="key" data-d="3" type="button" aria-label="left">left</button>
-    <button class="key" data-d="w" type="button" aria-label="wait">wait</button>
-    <button class="key" data-d="1" type="button" aria-label="right">right</button>
-    <button class="key" data-d="2" type="button" aria-label="down">down</button>
-  </div>
-  <p class="hint">arrow keys or wasd to move · space to wait · you can also tap a neighbouring cell</p>
+    <div class="tracks">
+      <div class="tracks-head">
+        <h2>Three things I do</h2>
+        <p>My interests fall into three habits: making things, protecting things, and making things feel good to use.</p>
+      </div>
+      <div class="grid3">
+        <article class="track">
+          <div class="verb">I <em>build.</em></div>
+          <p>Software, systems, websites and games, from the first line of code to something people can run.</p>
+          <ul class="chips"><li>Coding</li><li>Programming</li><li>Software Dev</li><li>System Dev</li><li>Web Dev</li><li>Game Dev</li></ul>
+        </article>
+        <article class="track">
+          <div class="verb">I <em>secure.</em></div>
+          <p>Finding weak spots the ethical way, so the things I and others build hold up.</p>
+          <ul class="chips"><li>Ethical Hacking</li><li>Cyber Security</li></ul>
+        </article>
+        <article class="track">
+          <div class="verb">I <em>design.</em></div>
+          <p>Interfaces that are clear, quick to learn and nice to look at.</p>
+          <ul class="chips"><li>UI/UX Design</li></ul>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROJECTS -->
+  <section data-page="projects" hidden>
+    <div class="page-head">
+      <div class="eyebrow">Portfolio</div>
+      <h1>Projects</h1>
+      <p>Things I've built and am building across games, the web, software and security.</p>
+    </div>
+    <div class="filters" role="group" aria-label="Filter projects">
+      <button type="button" data-f="all" aria-pressed="true">All</button>
+      <button type="button" data-f="web" aria-pressed="false">Web</button>
+      <button type="button" data-f="game" aria-pressed="false">Games</button>
+      <button type="button" data-f="security" aria-pressed="false">Security</button>
+      <button type="button" data-f="software" aria-pressed="false">Software</button>
+    </div>
+    <div class="projects" id="projects"></div>
+  </section>
+
+  <!-- CONTACT -->
+  <section data-page="contact" hidden>
+    <div class="contact">
+      <div>
+        <div class="page-head" style="margin-bottom:28px">
+          <div class="eyebrow">Contact me</div>
+          <h1>Let's talk.</h1>
+          <p>Collabs, internships, project ideas, or just talking code and security.</p>
+        </div>
+        <div class="links">
+          <div class="row"><span class="lbl">gmail</span><a href="mailto:felicianomahilum@gmail.com">felicianomahilum@gmail.com</a><button class="copy" type="button" data-copy="felicianomahilum@gmail.com">copy</button></div>
+          <div class="row"><span class="lbl">github</span><a href="https://github.com/dhellss" target="_blank" rel="noopener">github.com/dhellss</a><button class="copy" type="button" data-copy="https://github.com/dhellss">copy</button></div>
+        </div>
+      </div>
+      <div class="pc-stage" id="pc-stage" aria-label="A cute 3D computer showing a terminal">
+        <div class="pc-shadow"></div>
+        <div class="pc-float">
+          <div class="pc" id="pc">
+            <div class="box monitor" data-w="270" data-h="236" data-d="160" data-y="-60" data-z="0">
+              <template data-face="front">
+                <div class="screen">
+                  <div class="scr-bar"><span>tty1</span><span>dhellskiee.dev</span></div>
+                  <div class="scr-out" id="scr-out"></div>
+                  <div class="prompt"><span class="p">~/ dhellskiee :</span> <span id="scr-in"></span><span class="caret"></span></div>
+                </div>
+                <div class="faceplate">
+                  <span class="led"></span>
+                  <div class="mug"><span class="blush"></span><span class="eye"><i></i></span><span class="smile"></span><span class="eye"><i></i></span><span class="blush"></span></div>
+                  <span class="slot"></span>
+                </div>
+              </template>
+            </div>
+            <div class="box neck" data-w="90" data-h="34" data-d="80" data-y="75" data-z="-10"></div>
+            <div class="box base" data-w="190" data-h="16" data-d="140" data-y="100" data-z="-10"></div>
+            <div class="box kb" data-w="240" data-h="14" data-d="84" data-y="101" data-z="140"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
 </main>
-<footer class="foot">dhellmar mahilum — malupet na hacker</footer>
+
+<footer><div class="wrap">
+  <div class="sig-cmd">~/ dhellskiee : whoami</div>
+  <p class="sig" id="sig">malupet na hacker</p>
+  <div class="sig-ok" id="sig-ok">[ok] identity confirmed</div>
+</div></footer>
+<div class="toast" id="toast" hidden></div>
+<div class="tx" id="tx" hidden aria-hidden="true"><div class="shred" id="tx-shred"></div><div class="cmd"><span class="d">~/ dhellskiee :</span> <span id="tx-t"></span><span class="c"></span></div></div>
+
 <script src="script.js"></script>
 </body>
 </html>

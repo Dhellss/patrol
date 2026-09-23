@@ -1,245 +1,270 @@
-/* patrol — turn-based stealth. Cameras turn a quarter every move you make. */
-(function () {
-  "use strict";
-  var DIRS = [{ dx: 0, dy: -1 }, { dx: 1, dy: 0 }, { dx: 0, dy: 1 }, { dx: -1, dy: 0 }];
-  var ARROW = ["^", ">", "v", "<"];
-  var REACH = 3;
+const PROJECTS=[
 
-  var $ = function (i) { return document.getElementById(i); };
-  var grid = $("grid"), overlay = $("overlay"), card = $("card");
-  var vLevel = $("v-level"), vMoves = $("v-moves"), vData = $("v-data"), vScore = $("v-score"), vLives = $("v-lives");
+/* Website */
+  {cat:"web",
+    tag:"Web Dev",
+    title:"Dragon",
+    desc:"A one-page portfolio with a 3D dragon guarding a glowing orb, terminal windows layered on top.",
+    stack:["HTML","CSS","JavaScript","three.js"],
+    img:"asset/Drago.png",
+    url:"https://dhellss.github.io/Dragon/"},
 
-  function load(k,d){try{var v=localStorage.getItem(k);return v===null?d:v}catch(e){return d}}
-  function save(k,v){try{localStorage.setItem(k,v)}catch(e){}}
-  var best = parseInt(load("pt.best","0"),10) || 0;
+  {cat:"web",
+    tag:"Web Dev",
+    title:"OS",
+    desc:"A fake desktop OS for a portfolio — icons, draggable windows and a dock instead of a normal page.",
+    stack:["HTML","CSS","JavaScript"],
+    img:"asset/OS.png",
+  url:"https://dhellss.github.io/OS/"},
 
-  var level = 1, score = 0, lives = 3, F = null, playing = false;
+  {cat:"web",
+    tag:"Web Dev",
+    title:"Terminal",
+    desc:"A portfolio you navigate by actually typing commands into a working terminal.",
+    stack:["HTML","CSS","JavaScript"],
+    img:"asset/Terminal.png",
+  url:"https://dhellss.github.io/Terminal/"},
 
-  function litMaps(n, cells, cams) {
-    var maps = [];
-    for (var p = 0; p < 4; p++) {
-      var a = new Uint8Array(n * n);
-      for (var k = 0; k < cams.length; k++) {
-        var cam = cams[k], d = (cam.f + p) % 4;
-        var x = cam.i % n, y = (cam.i / n) | 0;
-        for (var s = 0; s < REACH; s++) {
-          x += DIRS[d].dx; y += DIRS[d].dy;
-          if (x < 0 || y < 0 || x >= n || y >= n) break;
-          var j = y * n + x;
-          if (cells[j]) break;
-          a[j] = 1;
-        }
-      }
-      maps.push(a);
-    }
-    return maps;
-  }
 
-  function solve(n, cells, lit, start, exit, data) {
-    var idx = {}, i;
-    for (i = 0; i < data.length; i++) idx[data[i]] = i;
-    var full = (1 << data.length) - 1;
-    if (lit[0][start]) return -1;
-    var seen = new Uint8Array(n * n * 4 * 16);
-    var key = function (c, p, m) { return (c * 4 + p) * 16 + m; };
-    var q = [[start, 0, 0, 0]], head = 0;
-    seen[key(start, 0, 0)] = 1;
-    while (head < q.length) {
-      var s = q[head++], c = s[0], p = s[1], m = s[2], dist = s[3];
-      if (c === exit && m === full) return dist;
-      var x = c % n, y = (c / n) | 0, opts = [c];
-      for (var d = 0; d < 4; d++) {
-        var nx = x + DIRS[d].dx, ny = y + DIRS[d].dy;
-        if (nx < 0 || ny < 0 || nx >= n || ny >= n) continue;
-        opts.push(ny * n + nx);
-      }
-      var np = (p + 1) % 4;
-      for (var o = 0; o < opts.length; o++) {
-        var t = opts[o];
-        if (cells[t]) continue;
-        if (lit[p][t] || lit[np][t]) continue;
-        var nm = m | (idx[t] === undefined ? 0 : (1 << idx[t]));
-        var kk = key(t, np, nm);
-        if (seen[kk]) continue;
-        seen[kk] = 1;
-        q.push([t, np, nm, dist + 1]);
-      }
-    }
-    return -1;
-  }
+  {cat:"web",
+    tag:"Web Dev",
+    title:"Readme",
+    desc:"A quiet, text-first portfolio styled like a project README file.",
+    stack:["HTML","CSS","JavaScript"],
+    img:"asset/Readme.png",
+  url:"https://dhellss.github.io/Readme/"},
 
-  function makeFloor(lv) {
-    var small = matchMedia("(max-width:600px)").matches;
-    var n = lv >= 5 && !small ? 8 : 7;
-    var wantCams = Math.min(5, 2 + Math.floor(lv / 2));
-    var wantData = Math.min(3, 1 + Math.floor((lv - 1) / 3));
+  {cat:"web",
+    tag:"Web Dev",
+    title:"Grid",
+    desc:"A dashboard-style portfolio: bordered cells laid out in a grid with a sidebar nav.",
+    stack:["HTML","CSS","JavaScript"],
+    img:"asset/Grid.png",
+  url:"https://dhellss.github.io/Grid/"},
 
-    for (var attempt = 0; attempt < 400; attempt++) {
-      var cams = attempt > 250 ? Math.max(2, wantCams - 1) : wantCams;
-      var cells = new Uint8Array(n * n);
-      var i, r;
-      for (i = 0; i < n * n; i++) if (Math.random() < 0.14) cells[i] = 1;
-      var free = [];
-      for (i = 0; i < n * n; i++) if (!cells[i]) free.push(i);
-      if (free.length < 14) continue;
-      var pick = function () { return free.splice((Math.random() * free.length) | 0, 1)[0]; };
+  {cat:"web",
+    tag:"Web Dev",
+    title:"Prompt",
+    desc:"A minimal command-prompt portfolio that types itself out, navigated with keyboard shortcuts.",
+    stack:["HTML","CSS","JavaScript"],
+    img:"asset/Prompt.png",
+  url:"https://dhellss.github.io/Prompt/"},
 
-      var camList = [];
-      for (i = 0; i < cams; i++) {
-        var ci = pick();
-        if (ci === undefined) break;
-        cells[ci] = 2;
-        camList.push({ i: ci, f: (Math.random() * 4) | 0 });
-      }
-      var start = pick(), exit = pick(), data = [];
-      if (start === undefined || exit === undefined) continue;
-      for (i = 0; i < wantData; i++) { var di = pick(); if (di !== undefined) data.push(di); }
-      if (data.length < wantData) continue;
 
-      var lit = litMaps(n, cells, camList);
-      var par = solve(n, cells, lit, start, exit, data);
-      if (par < 4 || par > 70) continue;
+/* Game */
+  {cat:"game",
+    tag:"Game Dev",
+    title:"ProjectBato",
+    desc:"Project Bato is an underwater arcade game where players control a crocodile that eats money to survive while avoiding harmful obstacles.",
+    stack:["HTML","CSS","JavaScript"],
+    img:"asset/ProjectBato.png",
+  url:"https://dhellss.github.io/ProjectBato/"},
 
-      return { n: n, cells: cells, cams: camList, lit: lit, start: start, exit: exit,
-               data: data, par: par, at: start, phase: 0, moves: 0, got: [] };
-    }
-    return null;
-  }
+  {cat:"game",
+    tag:"Game Dev",
+    title:"pulse",
+    desc:"Rings collapse toward the centre. Hit each one the moment it crosses the lock ring..",
+    stack:["HTML","CSS","JavaScript"],
+    img:"asset/pulse.png",
+  url:"https://dhellss.github.io/pulse/"},
 
-  function build() {
-    grid.style.setProperty("--n", F.n);
-    grid.innerHTML = "";
-    for (var i = 0; i < F.n * F.n; i++) {
-      var c = document.createElement("div");
-      c.className = "c"; c.dataset.i = i;
-      grid.appendChild(c);
-    }
-    paint();
-  }
+    {cat:"game",
+    tag:"Game Dev",
+    title:"keycrack",
+    desc:"Every lock holds a key of four different symbols. Guess, read the feedback, cut down what is left.",
+    stack:["HTML","CSS","JavaScript"],
+    img:"asset/keycrack.png",
+  url:"https://dhellss.github.io/keycrack/"},
 
-  function paint() {
-    var now = F.lit[F.phase], nxt = F.lit[(F.phase + 1) % 4];
-    var kids = grid.children;
-    for (var i = 0; i < kids.length; i++) {
-      var c = kids[i], cls = "c", txt = "";
-      if (F.cells[i] === 1) cls += " wall";
-      else if (F.cells[i] === 2) {
-        cls += " cam";
-        for (var k = 0; k < F.cams.length; k++) if (F.cams[k].i === i) txt = ARROW[(F.cams[k].f + F.phase) % 4];
-      } else {
-        if (nxt[i]) cls += " next";
-        if (now[i]) cls += " now";
-        if (i === F.exit) { cls += " exit"; txt = "="; }
-        if (F.data.indexOf(i) >= 0 && F.got.indexOf(i) < 0) { cls += " data"; txt = "*"; }
-        if (i === F.at) { cls += " me"; txt = "@"; }
-        if (adjacent(i) && i !== F.at) cls += " step";
-      }
-      c.className = cls;
-      c.textContent = txt;
-    }
-    hud();
-  }
+    {cat:"game",
+    tag:"Game Dev",
+    title:"handshake",
+    desc:"A signal flashes across nine nodes. Then the whole board turns a quarter, and you repeat it.",
+    stack:["HTML","CSS","JavaScript"],
+    img:"asset/handshake.png",
+  url:"https://dhellss.github.io/handshake/"},
 
-  function adjacent(i) {
-    var n = F.n, x = i % n, y = (i / n) | 0, ax = F.at % n, ay = (F.at / n) | 0;
-    return Math.abs(x - ax) + Math.abs(y - ay) === 1;
-  }
+    {cat:"game",
+    tag:"Game Dev",
+    title:"inject",
+    desc:"Processes are dropping into the kernel. Type a name to kill it before it lands.",
+    stack:["HTML","CSS","JavaScript"],
+    img:"asset/inject.png",
+  url:"https://dhellss.github.io/inject/"},
 
-  function hud() {
-    vLevel.textContent = level;
-    vMoves.innerHTML = F.moves + ' <i>/ ' + F.par + "</i>";
-    vData.textContent = F.got.length + "/" + F.data.length;
-    vScore.textContent = score;
-    var s = ""; for (var i = 0; i < lives; i++) s += "life ";
-    vLives.textContent = s.trim() || "no lives";
-  }
+    {cat:"game",
+    tag:"Game Dev",
+    title:"kernel-route",
+    desc:"Every node on the grid is dead except the core. Turn the links until the signal reaches all of them.",
+    stack:["HTML","CSS","JavaScript"],
+    img:"asset/kernel-route.png",
+  url:"https://dhellss.github.io/kernel-route/"},
 
-  function step(target) {
-    if (!playing) return;
-    if (F.cells[target]) return;
-    if (target !== F.at && !adjacent(target)) return;
-    var now = F.lit[F.phase], nxt = F.lit[(F.phase + 1) % 4];
-    var seen = now[target] || nxt[target];
-    F.at = target;
-    F.moves++;
-    F.phase = (F.phase + 1) % 4;
-    if (F.data.indexOf(target) >= 0 && F.got.indexOf(target) < 0) F.got.push(target);
-    paint();
-    if (seen) return caught();
-    if (target === F.exit && F.got.length === F.data.length) return cleared();
-  }
+    {cat:"game",
+    tag:"Game Dev",
+    title:"patrol",
+    desc:"Grab every file and reach the stairs. The cameras turn a quarter every time you move",
+    stack:["HTML","CSS","JavaScript"],
+    img:"asset/patrol.png",
+  url:"https://dhellss.github.io/patrol/"},
+/* Security */
 
-  function cleared() {
-    playing = false;
-    var head = level * 150, tight = Math.max(0, F.par + 4 - F.moves) * 20;
-    score += head + tight;
-    if (score > best) { best = score; save("pt.best", String(best)); }
-    hud();
-    card.innerHTML = '<h1 class="good">floor ' + level + " clear</h1><p>Out through the stairs, nothing on tape.</p>" +
-      '<div class="score-rows"><div><span>floor</span><b>+' + head + "</b></div>" +
-      "<div><span>quick route</span><b>+" + tight + "</b></div>" +
-      "<div><span>score</span><b>" + score + "</b></div></div>" +
-      '<button class="btn" id="go" type="button">Next floor</button>';
-    overlay.hidden = false;
-    $("go").addEventListener("click", function () { level++; load2(); }, { once: true });
-  }
-
-  function caught() {
-    playing = false; lives--; hud();
-    if (lives <= 0) {
-      card.innerHTML = '<h1 class="bad">spotted</h1><p>Security has you on floor ' + level + ".</p>" +
-        '<div class="score-rows"><div><span>score</span><b>' + score + "</b></div>" +
-        "<div><span>best</span><b>" + best + "</b></div></div>" +
-        '<button class="btn" id="go" type="button">Try again</button>';
-      overlay.hidden = false;
-      $("go").addEventListener("click", function () { level = 1; score = 0; lives = 3; load2(); }, { once: true });
-    } else {
-      card.innerHTML = '<h1 class="bad">spotted</h1><p>A camera caught you crossing. The floor resets.</p>' +
-        '<div class="score-rows"><div><span>lives left</span><b>' + lives + "</b></div></div>" +
-        '<button class="btn" id="go" type="button">Back in</button>';
-      overlay.hidden = false;
-      $("go").addEventListener("click", function () { reset(); }, { once: true });
-    }
-  }
-
-  function reset() {
-    F.at = F.start; F.phase = 0; F.moves = 0; F.got = [];
-    paint(); overlay.hidden = true; playing = true;
-  }
-
-  function load2() {
-    var f = makeFloor(level);
-    if (!f) { level = Math.max(1, level - 1); f = makeFloor(level); }
-    F = f; build(); overlay.hidden = true; playing = true;
-  }
-
-  grid.addEventListener("click", function (e) {
-    var c = e.target.closest(".c");
-    if (c) step(+c.dataset.i);
+/* Software */
+];
+const el=document.getElementById("projects");
+function render(f){
+  el.innerHTML="";
+  PROJECTS.filter(p=>f==="all"||p.cat===f).forEach((p,i)=>{
+    const a=document.createElement("article");a.className="proj";
+    const media=p.video?`<video class="proj-media" src="${p.video}" autoplay muted loop playsinline aria-hidden="true"></video>`
+      :p.img?`<img class="proj-media" src="${p.img}" alt="${p.title} preview">`
+      :`<canvas data-art="${p.art}" aria-hidden="true"></canvas>`;
+    a.innerHTML=`${media}<div class="proj-body"><div class="proj-top"><span class="tag">${p.tag}</span><a class="sample" href="${p.url}" target="_blank" rel="noopener">view ↗</a></div><h3>${p.title}</h3><p>${p.desc}</p><div class="stack">${p.stack.map(s=>`<span>${s}</span>`).join("")}</div></div>`;
+    el.appendChild(a);
   });
+  el.querySelectorAll("canvas").forEach(draw);
+}
+function draw(c){
+  const r=c.getBoundingClientRect(),d=devicePixelRatio||1,w=r.width||500,h=150;
+  c.width=w*d;c.height=h*d;const x=c.getContext("2d");x.scale(d,d);
+  const A="#FFFFFF",B="#777777",G="rgba(255,255,255,.07)";
+  x.strokeStyle=G;for(let i=0;i<w;i+=20){x.beginPath();x.moveTo(i,0);x.lineTo(i,h);x.stroke()}for(let j=0;j<h;j+=20){x.beginPath();x.moveTo(0,j);x.lineTo(w,j);x.stroke()}
+  const t=c.dataset.art;let s=7;const rnd=()=>(s=(s*9301+49297)%233280)/233280;
+  if(t==="grid"){for(let i=0;i<w;i+=20)for(let j=0;j<h;j+=20)if(rnd()>.72){x.fillStyle=rnd()>.85?B:A;x.globalAlpha=.35+rnd()*.6;x.fillRect(i+2,j+2,16,16)}x.globalAlpha=1}
+  if(t==="bars"){for(let i=20;i<w-20;i+=26){const bh=20+rnd()*(h-50);x.fillStyle=i%78<26?B:A;x.globalAlpha=.8;x.fillRect(i,h-bh-12,16,bh)}x.globalAlpha=1}
+  if(t==="radar"){const cx=w/2,cy=h/2;x.strokeStyle=A;x.globalAlpha=.5;for(let k=1;k<=4;k++){x.beginPath();x.arc(cx,cy,k*16,0,7);x.stroke()}x.globalAlpha=1;for(let k=0;k<9;k++){const an=rnd()*6.28,rr=16+rnd()*48;x.fillStyle=k<2?B:A;x.beginPath();x.arc(cx+Math.cos(an)*rr,cy+Math.sin(an)*rr,3.5,0,7);x.fill()}}
+  if(t==="wave"){[A,B].forEach((col,n)=>{x.strokeStyle=col;x.lineWidth=2.5;x.beginPath();for(let i=0;i<=w;i+=4){const y=h/2+Math.sin(i/(28+n*12)+n)*(26+n*8);i?x.lineTo(i,y):x.moveTo(i,y)}x.stroke()})}
+}
+document.querySelectorAll(".filters button").forEach(b=>b.addEventListener("click",()=>{
+  document.querySelectorAll(".filters button").forEach(o=>o.setAttribute("aria-pressed",o===b));render(b.dataset.f)}));
 
-  function move(d) {
-    var n = F.n, x = F.at % n, y = (F.at / n) | 0;
-    var nx = x + DIRS[d].dx, ny = y + DIRS[d].dy;
-    if (nx < 0 || ny < 0 || nx >= n || ny >= n) return;
-    step(ny * n + nx);
-  }
+const pages=["home","projects","contact"];
+const reduceMQ=matchMedia("(prefers-reduced-motion: reduce), (max-width: 600px)");
+let first=true,busy=false;
+function show(p){
+  document.querySelectorAll("section[data-page]").forEach(s=>s.hidden=s.dataset.page!==p);
+  document.querySelectorAll("[data-link]").forEach(a=>a.dataset.link===p?a.setAttribute("aria-current","page"):a.removeAttribute("aria-current"));
+  if(p==="projects")render(document.querySelector('.filters [aria-pressed="true"]').dataset.f);
+  window.scrollTo(0,0);
+}
+const wait=ms=>new Promise(r=>setTimeout(r,ms));
+function scramble(node){
+  const final=node.dataset.text||(node.dataset.text=node.textContent),ch="01<>/_#$%&*";let f=0;
+  const iv=setInterval(()=>{f++;node.textContent=final.split("").map((c,i)=>i<f/2?c:ch[Math.random()*ch.length|0]).join("");if(f/2>=final.length){clearInterval(iv);node.textContent=final}},35);
+}
+const SHRED=12;
+function buildShred(){
+  const s=document.getElementById("tx-shred");
+  if(s.childElementCount)return;
+  for(let i=0;i<SHRED;i++){const c=document.createElement("i");c.style.setProperty("--i",Math.abs(i-(SHRED-1)/2));s.appendChild(c)}
+}
+async function toProjects(){
+  busy=true;const tx=document.getElementById("tx"),t=document.getElementById("tx-t"),cmd="cd ~/projects && ls";
+  buildShred();
+  t.textContent="";tx.classList.remove("go");tx.hidden=false;
+  for(let i=1;i<=cmd.length;i++){t.textContent=cmd.slice(0,i);await wait(28)}
+  await wait(180);
+  show("projects");
+  document.querySelectorAll(".proj").forEach((c,i)=>{c.classList.add("in");c.style.animationDelay=(200+i*90)+"ms";c.addEventListener("animationend",()=>{c.classList.remove("in");c.style.animationDelay=""},{once:true})});
+  scramble(document.querySelector('[data-page="projects"] h1'));
+  tx.classList.add("go");await wait(740);tx.hidden=true;busy=false;
+}
+function route(){
+  const p=pages.includes(location.hash.slice(1))?location.hash.slice(1):"home";
+  if(p==="projects"&&!first&&!reduceMQ.matches&&!busy){toProjects()}else show(p);
+  first=false;
+}
+addEventListener("hashchange",route);route();
 
-  document.querySelectorAll(".pad .key").forEach(function (b) {
-    b.addEventListener("click", function () {
-      var d = b.dataset.d;
-      if (d === "w") step(F.at); else move(+d);
-    });
-  });
+const toast=document.getElementById("toast");let tt;
+function say(m){toast.textContent=m;toast.hidden=false;clearTimeout(tt);tt=setTimeout(()=>toast.hidden=true,1800)}
+document.querySelectorAll("[data-copy]").forEach(b=>b.addEventListener("click",async()=>{
+  try{await navigator.clipboard.writeText(b.dataset.copy);say("Copied")}catch(e){say("Couldn't copy — select the text instead")}}));
 
-  document.addEventListener("keydown", function (e) {
-    if (!playing) return;
-    var m = { ArrowUp: 0, w: 0, W: 0, ArrowRight: 1, d: 1, D: 1, ArrowDown: 2, s: 2, S: 2, ArrowLeft: 3, a: 3, A: 3 };
-    if (e.key in m) { e.preventDefault(); move(m[e.key]); return; }
-    if (e.key === " " || e.key === ".") { e.preventDefault(); step(F.at); }
-  });
-
-  F = makeFloor(1);
-  build();
-  $("go").addEventListener("click", function () { overlay.hidden = true; playing = true; }, { once: true });
+/* footer signature pop-up */
+(function(){
+  const sig=document.getElementById("sig");let i=0;
+  sig.innerHTML=sig.textContent.split(" ").map(w=>`<span class="w">${[...w].map(c=>`<span class="ch" style="--i:${i++}">${c}</span>`).join("")}</span>`).join("");
+  sig.setAttribute("aria-label","malupet na hacker");
+  if(!("IntersectionObserver" in window))return;
+  sig.classList.add("armed");
+  new IntersectionObserver(es=>es.forEach(e=>{
+    if(e.isIntersecting){sig.classList.remove("play");void sig.offsetWidth;sig.classList.add("play")}
+    else sig.classList.remove("play");
+  }),{threshold:.6}).observe(sig);
 })();
+
+/* 3D computer */
+(function(){
+  document.querySelectorAll(".box").forEach(b=>{
+    const w=+b.dataset.w,h=+b.dataset.h,d=+b.dataset.d,tpl=b.querySelector("template");
+    b.style.transform=`translate3d(0,${b.dataset.y}px,${b.dataset.z}px)`;
+    const F={front:[w,h,`translateZ(${d/2}px)`],back:[w,h,`rotateY(180deg) translateZ(${d/2}px)`],right:[d,h,`rotateY(90deg) translateZ(${w/2}px)`],left:[d,h,`rotateY(-90deg) translateZ(${w/2}px)`],top:[w,d,`rotateX(90deg) translateZ(${h/2}px)`],bottom:[w,d,`rotateX(-90deg) translateZ(${h/2}px)`]};
+    for(const k in F){const [fw,fh,t]=F[k],f=document.createElement("div");f.className="face f-"+k;f.style.cssText=`width:${fw}px;height:${fh}px;margin:${-fh/2}px 0 0 ${-fw/2}px;transform:${t}`;
+      if(k==="front"&&tpl)f.appendChild(tpl.content.cloneNode(true));b.appendChild(f)}
+    if(tpl)tpl.remove();
+  });
+  const stage=document.getElementById("pc-stage"),pc=document.getElementById("pc"),out=document.getElementById("scr-out"),inp=document.getElementById("scr-in");
+  const still=()=>reduceMQ.matches;
+  let rx=-14,ry=-28,tx=-14,ty=-28,ex=0,ey=0,typing=0;
+  function loop(){rx+=(tx-rx)*.08;ry+=(ty-ry)*.08;pc.style.transform=`rotateX(${rx}deg) rotateY(${ry}deg)`;
+    pc.querySelectorAll(".eye i").forEach(i=>i.style.transform=`translate(${ex*3}px,${ey*3}px)`);requestAnimationFrame(loop)}
+  if(!still())loop();
+  stage.addEventListener("pointermove",e=>{if(still()||zooming)return;const r=stage.getBoundingClientRect(),px=(e.clientX-r.left)/r.width-.5,py=(e.clientY-r.top)/r.height-.5;
+    ty=-28+px*70;tx=-14-py*30;ex=px*2;ey=py*2});
+  const wait=ms=>new Promise(r=>setTimeout(r,ms));
+  async function type(txt){const id=++typing;inp.textContent="";
+    if(still()){inp.textContent=txt;return true}
+    for(const c of txt){if(id!==typing)return false;inp.textContent+=c;await wait(45)}return id===typing}
+  function print(lines){lines.forEach(([t,ok])=>{const d=document.createElement("div");d.textContent=t;if(ok)d.className="ok";out.appendChild(d)});while(out.children.length>4)out.firstChild.remove()}
+  stage.addEventListener("pointerenter",async()=>{if(zooming)return;pc.classList.add("awake");if(!still()){pc.classList.remove("hop");void pc.offsetWidth;pc.classList.add("hop")}
+    await type("hi! wanna build something?")});
+  stage.addEventListener("pointerleave",()=>{if(zooming)return;pc.classList.remove("awake");typing++;inp.textContent="";tx=-14;ty=-28;ex=ey=0});
+  const CMDS=[["sudo make coffee","[ok] brewing... done"],["whoami","malupet na hacker"],["./hack --ethically","[ok] access granted"],["ping dhellmar","reply: let's talk!"],["git push --force","[ok] no fear"],["cat interests.txt","code, security, games, ui/ux"]];
+  let n=0;
+  const kb=pc.querySelector(".kb"),flt=pc.parentElement;let zooming=false;
+  function heart(e){const h=document.createElement("span");h.className="heart";h.textContent="<3";const rr=stage.getBoundingClientRect();h.style.left=(e.clientX-rr.left)+"px";h.style.top=(e.clientY-rr.top-10)+"px";stage.appendChild(h);setTimeout(()=>h.remove(),1000)}
+  async function runCmd(e){
+    const [c,r]=CMDS[n++%CMDS.length];
+    if(!still()){kb.classList.add("press");setTimeout(()=>kb.classList.remove("press"),120);pc.classList.remove("hop");void pc.offsetWidth;pc.classList.add("hop");heart(e)}
+    if(await type(c)){print([["~/ dhellskiee : "+c],[r,1]]);inp.textContent=""}
+  }
+  async function zoomHome(){
+    if(still()){location.hash="home";return}
+    zooming=true;typing++;
+    tx=0;ty=0;ex=0;ey=0;                        // face the viewer
+    const id=++typing;inp.textContent="";
+    for(const c of "cd ~/home"){if(id!==typing)break;inp.textContent+=c;await wait(35)}
+    await wait(260);
+    const scr=pc.querySelector(".screen"),r=scr.getBoundingClientRect();
+    const z=document.createElement("div");z.className="zoom";
+    z.innerHTML='<div class="t"><span class="p">~/ dhellskiee :</span> cd ~/home</div><div class="line"></div>';
+    Object.assign(z.style,{left:r.left+"px",top:r.top+"px",width:r.width+"px",height:r.height+"px",borderRadius:"14px"});
+    document.body.appendChild(z);
+    const ease="cubic-bezier(.75,0,.2,1)";
+    flt.animate([{transform:"scale(1)"},{transform:"scale(2.6)"}],{duration:750,easing:ease,fill:"forwards"});
+    await z.animate([{left:r.left+"px",top:r.top+"px",width:r.width+"px",height:r.height+"px",borderRadius:"14px"},
+                     {left:"0px",top:"0px",width:innerWidth+"px",height:innerHeight+"px",borderRadius:"0px"}],{duration:750,easing:ease,fill:"forwards"}).finished;
+    await wait(220);
+    location.hash="home";                         // swap page under the screen
+    const main=document.querySelector("main");
+    const t=z.querySelector(".t"),ln=z.querySelector(".line");
+    t.animate([{opacity:1},{opacity:0}],{duration:150,fill:"forwards"});
+    ln.animate([{opacity:0},{opacity:1}],{duration:120,delay:260,fill:"forwards"});
+    main.animate([{transform:"scale(1.06)",filter:"blur(4px)"},{transform:"none",filter:"blur(0)"}],{duration:900,easing:"cubic-bezier(.2,.7,.2,1)"});
+    await z.animate([{clipPath:"inset(0 0 0 0)"},{clipPath:"inset(calc(50% - 1px) 0 calc(50% - 1px) 0)"}],{duration:420,easing:"cubic-bezier(.7,0,.3,1)",delay:120,fill:"forwards"}).finished;
+    await z.animate([{clipPath:"inset(calc(50% - 1px) 0 calc(50% - 1px) 0)",opacity:1},{clipPath:"inset(calc(50% - 1px) 50% calc(50% - 1px) 50%)",opacity:0}],{duration:280,easing:"ease-in",fill:"forwards"}).finished;
+    z.remove();
+    flt.getAnimations().forEach(a=>a.cancel());
+    inp.textContent="";pc.classList.remove("awake");tx=-14;ty=-28;zooming=false;
+  }
+  stage.addEventListener("click",e=>{
+    if(zooming)return;
+    if(e.target.closest(".screen"))zoomHome();
+    else if(e.target.closest(".kb"))runCmd(e);
+    else if(!still()){pc.classList.remove("hop");void pc.offsetWidth;pc.classList.add("hop")}
+  });
+  setInterval(()=>{if(still()||pc.classList.contains("awake"))return;pc.classList.add("blink");setTimeout(()=>pc.classList.remove("blink"),140)},3200);
+  
+})();
+addEventListener("resize",()=>{if(!document.querySelector('[data-page="projects"]').hidden)el.querySelectorAll("canvas").forEach(draw)});
