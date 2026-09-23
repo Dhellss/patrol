@@ -4,7 +4,7 @@ Grab every file and reach the stairs. The cameras turn a quarter every time you 
 
 ## Play
 
-https://dhellss.github.io/patrol/
+Open `index.html` in a browser. No build step, no dependencies.
 
 ## Rules
 
